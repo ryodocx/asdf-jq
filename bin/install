@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+. $(dirname $0)/util
+checkDependencies
+
+# check ASDK environment variables
+[ -n "$ASDF_INSTALL_VERSION" ] || (echo 'Missing ASDF_INSTALL_VERSION' >&2 && exit 1)
+[ -n "$ASDF_INSTALL_PATH" ] || (echo 'Missing ASDF_INSTALL_PATH' >&2 && exit 1)
+
+# install
+getDownloadURL() {
+    case "$(uname -s)" in
+    "Darwin") binname="jq-osx-amd64" ;;
+    "Linux") binname="jq-linux64" ;;
+    esac
+
+    echo "https://github.com/${github_user}/${github_repo}/releases/download/jq-${ASDF_INSTALL_VERSION}/${binname}"
+}
+
+mkdir -p "${ASDF_INSTALL_PATH}/bin"
+downloadPath="${ASDF_INSTALL_PATH}/bin/${toolname}"
+curl -fL -o "${downloadPath}" "$(getDownloadURL)"
+chmod +x "${downloadPath}"
